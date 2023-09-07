@@ -1,20 +1,15 @@
 const User = require("../models/User");
-
-const fileService = require("../fileService");
-
+const sharp = require("sharp");
 class PostController {
   async create(req, res) {
     const { firstName, lastName, login, password } = req.body;
-    const file = req.files;
-    const fileName = fileService.saveFile(file);
-
     try {
       const new_user = await User.create({
         firstName,
         lastName,
         login,
         password,
-        picture: `${process.env.HOST}photo/${fileName}`,
+        isPublished: true,
       });
 
       res.status(201).json({
@@ -26,9 +21,32 @@ class PostController {
     }
   }
 
+  async fileUpload(req, res) {
+    try {
+      const file = req.file;
+      const path = `uploads/${file.originalname}`;
+      await sharp(file.path).toFile(path);
+      return res.status(200).json({
+        status: true,
+        message: "Upload success",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: false,
+        message: error.message,
+      });
+    }
+  }
+
   async getAll(req, res) {
-    const users = await User.find();
-    res.json(users);
+    try {
+      const users = await User.find();
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({
+        message: error.message,
+      });
+    }
   }
 
   async getOne(req, res) {

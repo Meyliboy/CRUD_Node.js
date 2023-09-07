@@ -20,13 +20,15 @@ const schema = new mongoose.Schema({
     max: 255,
   },
   password: {
+    required: true,
     type: String,
     min: 8,
-    required: true,
   },
-  picture: {
-    type: String,
+  date: {
+    type: Date,
+    default: Date.now,
   },
+  isPublished: Boolean,
 });
 
 module.exports = mongoose.model("users", schema);
